@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso — Diario de Actividades</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0f1f3d; --navy-mid:#162847; --blue:#1a56db; --blue-hover:#1447c0;
+    --gray-bg:#f0f2f5; --white:#ffffff; --success:#10b981; --danger:#ef4444;
+    --text:#111827; --text-soft:#6b7280; --border:#d1d5db;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh; background:var(--navy);
+    font-family:'Inter',sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    background-image: radial-gradient(ellipse at 20% 50%, #1e3a5f 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 20%, #162847 0%, transparent 50%);
+  }
+
+  .login-wrap {
+    width:100%; max-width:440px; padding:24px;
+  }
+
+  .brand {
+    text-align:center; margin-bottom:32px;
+  }
+  .brand-icon {
+    width:56px; height:56px; background:var(--blue); border-radius:14px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:28px; margin-bottom:14px;
+    box-shadow:0 8px 24px rgba(26,86,219,0.4);
+  }
+  .brand-name { font-family:'Poppins',sans-serif; font-size:22px; font-weight:700; color:white; }
+  .brand-sub  { font-size:12px; color:rgba(255,255,255,0.45); letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+
+  .card {
+    background:white; border-radius:16px; overflow:hidden;
+    box-shadow:0 24px 48px rgba(0,0,0,0.3);
+  }
+
+  .tabs {
+    display:flex; border-bottom:1px solid var(--border);
+  }
+  .tab {
+    flex:1; padding:16px; text-align:center; font-size:13px; font-weight:600;
+    cursor:pointer; border:none; background:none; font-family:'Inter',sans-serif;
+    color:var(--text-soft); transition:all 0.2s; border-bottom:2px solid transparent;
+  }
+  .tab.active { color:var(--blue); border-bottom-color:var(--blue); background:#fafbff; }
+
+  .tab-content { display:none; padding:28px; }
+  .tab-content.active { display:block; }
+
+  .form-group { margin-bottom:16px; }
+  .form-group label { display:block; font-size:11px; font-weight:600; color:var(--text-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+  .form-group input {
+    width:100%; padding:11px 14px; border:1px solid var(--border); border-radius:8px;
+    font-family:'Inter',sans-serif; font-size:13px; color:var(--text); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s; background:#fafafa;
+  }
+  .form-group input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,86,219,0.1); background:white; }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+  .btn-primary {
+    width:100%; padding:13px; background:var(--blue); color:white; border:none;
+    border-radius:8px; font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+    cursor:pointer; transition:all 0.2s; margin-top:4px;
+    box-shadow:0 2px 8px rgba(26,86,219,0.35);
+  }
+  .btn-primary:hover { background:var(--blue-hover); box-shadow:0 4px 14px rgba(26,86,219,0.45); }
+  .btn-primary:active { transform:translateY(1px); }
+  .btn-primary:disabled { background:#9ca3af; box-shadow:none; cursor:not-allowed; }
+
+  .alert {
+    padding:11px 14px; border-radius:8px; font-size:13px; margin-bottom:16px;
+    display:none; align-items:center; gap:8px;
+  }
+  .alert.show { display:flex; }
+  .alert.error   { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+  .alert.success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+
+  .divider { text-align:center; font-size:12px; color:var(--text-soft); margin:16px 0; position:relative; }
+  .divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--border); }
+  .divider::before { left:0; } .divider::after { right:0; }
+
+  .footer-note { text-align:center; font-size:12px; color:rgba(255,255,255,0.35); margin-top:20px; }
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="brand">
+    <div class="brand-icon">📋</div>
+    <div class="brand-name">Diario de Actividades</div>
+    <div class="brand-sub">Sistema de Registro</div>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('login', this)">Iniciar Sesión</button>
+      <button class="tab" onclick="showTab('registro', this)">Crear Cuenta</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="tab-content active" id="tab-login">
+      <div class="alert" id="login-alert"></div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-correo" placeholder="tu@correo.com" />
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">Iniciar Sesión</button>
+    </div>
+
+    <!-- REGISTRO -->
+    <div class="tab-content" id="tab-registro">
+      <div class="alert" id="reg-alert"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="reg-nombre" placeholder="Tu nombre" />
+        </div>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" id="reg-apellidos" placeholder="Tus apellidos" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Área</label>
+        <input type="text" id="reg-area" placeholder="Ej: Sistemas, Soporte, Dirección..." />
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-correo" placeholder="tu@correo.com" />
+      </div>
+      <button class="btn-primary" id="btn-registro" onclick="doRegistro()">Crear Cuenta</button>
+    </div>
+  </div>
+
+  <div class="footer-note">© 2026 · DESKTOP-GICH9VN · DiarioActividades</div>
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  hideAlerts();
+}
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = (type === 'error' ? '⚠ ' : '✔ ') + msg;
+  el.className = 'alert show ' + type;
+}
+
+function hideAlerts() {
+  document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+}
+
+async function doLogin() {
+  const correo   = document.getElementById('login-correo').value.trim();
+  const password = document.getElementById('login-pass').value;
+  if (!correo || !password) { showAlert('login-alert', 'Completa todos los campos', 'error'); return; }
+
+  const btn = document.getElementById('btn-login');
+  btn.disabled = true; btn.textContent = 'Ingresando...';
+
+  try {
+    const r = await fetch(`${API}/auth/login`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ correo, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { showAlert('login-alert', d.error, 'error'); return; }
+
+    // Guardar token y usuario
+    sessionStorage.setItem('token', d.token);
+    sessionStorage.setItem('usuario', JSON.stringify(d.usuario));
+
+    showAlert('login-alert', 'Acceso correcto, cargando...', 'success');
+    setTimeout(() => window.location.href = '/index.html', 800);
+  } catch {
+    showAlert('login-alert', 'Error de conexión con el servidor', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Iniciar Sesión';
+  }
+}
+
+async function doRegistro() {
+  const nombre    = document.getElementById('reg-nombre').value.trim();
+  const apellidos = document.getElementById('reg-apellidos').value.trim();
+  const area      = document.getElementById('reg-area').value.trim();
+  const correo    = document.getElementById('reg-correo').value.trim();
+
+  if (!nombre || !apellidos || !area || !correo) {
+    showAlert('reg-alert', 'Completa todos los campos', 'error'); return;
+  }
+
+  const btn = document.getElementById('btn-registro');
+  btn.disabled = true; btn.textContent = 'Creando cuenta...';
+
+  try {
+    const r = await fetch(`${API}/auth/registro`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ nombre, apellidos, area, correo })
+    });
+    const d = await r.json();
+    if (!r.ok) { showAlert('reg-alert', d.error, 'error'); return; }
+
+    showAlert('reg-alert', 'Cuenta creada. Revisa tu correo para obtener tu contraseña.', 'success');
+    document.getElementById('reg-nombre').value = '';
+    document.getElementById('reg-apellidos').value = '';
+    document.getElementById('reg-area').value = '';
+    document.getElementById('reg-correo').value = '';
+  } catch {
+    showAlert('reg-alert', 'Error de conexión con el servidor', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Crear Cuenta';
+  }
+}
+
+// Si ya tiene sesión, redirigir al dashboard
+if (sessionStorage.getItem('token')) {
+  window.location.href = '/index.html';
+}
+</script>
+</body>
+</html>
